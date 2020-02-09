@@ -1,7 +1,7 @@
 ---
-title: "assignment03"
+title: "Assignment 03: Data Visualization, Markdown, and Git"
 author: "Katie Guyot"
-date: "2/9/2020"
+date: "14 February 2020"
 output: html_document
 ---
 
@@ -9,22 +9,50 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## About the Data
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The American Time Use Survey is a nationally representative survey of the time use of individuals ages 15 and older. Data are recorded as time diaries in which respondents record what they did, where, and with whom over the previous day. Interviews take place every day of the year except a few major holidays. More information can be found at https://www.bls.gov/tus/overview.htm#1. The data extract used in this exercise was downloaded from IPUMS. 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+**Citation:**
 
-```{r cars}
-summary(cars)
+*Sandra L. Hofferth, Sarah M. Flood and Matthew Sobek. American Time Use Survey Data Extract Builder: Version 2.7 [dataset]. College Park, MD: University of Maryland and Minneapolis, MN: IPUMS, 2018. https://doi.org/10.18128/D060.V2.7*
+
+## Load Packages and Data
+
+```{r loaddata}
+library(tidyverse)
+
+atus <- read_csv("atus_00018.csv")
 ```
 
-## Including Plots
+## Graph 1
 
-You can also embed plots, for example:
+What is the relationship between average weekly worktime and wage, by industry? The color of the bubbles denotes industry, and the size of the bubbles indicates the number of workers employed in each industry. (geom point)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+I first recode the relevant variables for analysis.
+
+```{r Clean data for graph 1}
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Now collapse the dataset into average worktime, average wage, and # of workers, by industry.
+
+Finally, graph the variables of interest.
+
+## Graph 2
+
+How much time do married mothers and fathers spend taking care of children? This bar chart compares average weekly parental time in primary childcare by gender and age of youngest child. The sample is limited parents of children under age 18. Estimates are additionally divided into three categories of family types: dual earners (married couple, both parents work), single earners (married couple, one parent works), and single earners (unmarried parent).
+
+
+```{r Graph02}
+```
+
+## Graph 3
+
+How much time do people of different ages and cohorts spend with friends and romantic partners? ()
+
+
+## Graph 4
+
+Average time spent in different activities by age (distribution/violin plot)
+
+
