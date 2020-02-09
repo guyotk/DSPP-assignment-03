@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1581276030091.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2797091375",
+    "id" : "F0BE8EED",
+    "lastKnownWriteTime" : 1581276892,
+    "last_content_update" : 1581276892651,
+    "path" : "D:/Katie Guyot/Documents/Assignments/DataScienceGeorgetown/assignment03/assignment03.Rmd",
+    "project_path" : "assignment03.Rmd",
+    "properties" : {
+        "cursorPosition" : "1,21",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
