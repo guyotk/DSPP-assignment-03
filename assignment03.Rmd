@@ -3,10 +3,14 @@ title: "Assignment 03: Data Visualization, Markdown, and Git"
 author: "Katie Guyot"
 date: "14 February 2020"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(survey)
 ```
 
 ## About the Data
@@ -20,18 +24,95 @@ The American Time Use Survey is a nationally representative survey of the time u
 ## Load Packages and Data
 
 ```{r loaddata}
-library(tidyverse)
 
 atus <- read_csv("atus_00018.csv")
+atus <- filter(atus, YEAR > 2013)
+
+industries <- read_csv("industries.csv")
+
+```
+
+Set up survey weights for calculating means if used later:
+
+```{r survey-weights}
+atusdesign <- svydesign(id = ~1,
+                  probs = NULL,
+                  strata  = NULL,
+                  weights = atus$WT06,
+                  data = atus)
 ```
 
 ## Graph 1
 
-What is the relationship between average weekly worktime and wage, by industry? The color of the bubbles denotes industry, and the size of the bubbles indicates the number of workers employed in each industry. (geom point)
+What is the relationship between average weekly worktime and wage, by industry and the fraction of the industry that is female?  
 
 I first recode the relevant variables for analysis.
 
-```{r Clean data for graph 1}
+```{r clean-data}
+atus <- left_join(atus, industries, by="IND2")
+
+atus$UHRSWORKT[atus$UHRSWORKT == 9995] <- 9999
+
+atus <- atus %>%
+  mutate(EARNWEEK = na_if(EARNWEEK, 99999.99)) %>%
+  mutate(UHRSWORKT = na_if(UHRSWORKT, 9999)) %>%
+  mutate(wage = EARNWEEK/UHRSWORKT) %>%
+  mutate(work_hrswkly = BLS_WORK_WORKING*7/60) %>%
+  mutate(female = SEX-1)
+```
+
+I now create a new dataset of weighted average work hours and wages by industry. I also create variables to denote the fraction of the industry workforce that is female and how many people in the sample work in each industry.
+
+```{r collapse-industry}
+industry_worktime <- atus %>%
+  filter(!is.na(wage) & !is.na(industry) & UHRSWORKT>0 & EARNWEEK>0) %>%
+  select(YEAR, WT06, industry, wage, work_hrswkly, female) %>%
+  group_by(industry) %>%
+  summarize(avgwage = weighted.mean(wage, WT06, na.rm=TRUE), avghrs = weighted.mean(work_hrswkly, WT06, na.rm=TRUE), n=n(), fraction_female = weighted.mean(female, WT06, na.rm=TRUE))
+```
+
+The following lines create a scatterplot of average hourly wage and average weekly hours. The color of the bubbles denotes fraction of the industry workforce that is female, and the size of the bubbles indicates the number of workers employed in each industry (in the sample, not in the population).
+
+```{r graph-1}
+ggplot(industry_worktime, mapping = aes(x = avgwage, y = avghrs)) +
+  geom_point(mapping = aes(color = fraction_female, size = n)) +
+  scale_colour_gradient(low= "#00ABFD", high="#FF6C90")
+```
+
+Average work hours are generally longer in male-dominated industries. From other research, we know that this is largely due to higher rates of part-time work among women, which is in turn the result of gendered hold and family responsibilities. Differences in average wages between male- and female-dominated industries in this data source are perhaps smaller than we would expect from data sources that are better used for measuring wages (e.g. CPS or NCS), as female-dominated industries tend to pay lower wages. The combination of lower work hours and lower pay will result in even greater disparities in total earnings. 
+
+```
+median_wage <- svyby(~wage, ~industry, industrydesign, svyquantile, quantiles=0.5, keep.var=FALSE)
+
+total_workers <- svyby(~count, ~industry, industrydesign, unwtd.count)
+
+```
+  mutate(EARNWEEK = ) %>%
+  mutate
+  
+atus %>%
+  mutate(industry = ifelse(factor1 > 5 & 
+                         factor2 < 19 & 
+                         (factor3=="b" | factor3=="c") & 
+                         !is.na(factor4), 1, NA))  
+  
+
+ mutate(TWAY_ID2 = na_if(TWAY_ID2, ""))
+
+data1 <- atus %>%
+  select()
+  mutate
+  
+agg <- acc  %>%
+  group_by(StateName, YEAR) %>%
+  summarize(TOTAL = sum(FATALS, na.rm=TRUE)) %>%
+  ungroup()  
+  
+  summarise(worktime = mean(BLS_WORK_WORKING, na.rm=TRUE))
+
+table(select(atus, industry))
+
+
 ```
 
 Now collapse the dataset into average worktime, average wage, and # of workers, by industry.
