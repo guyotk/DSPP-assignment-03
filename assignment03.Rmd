@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(cowplot)
 ```
 
 ## About the Data
@@ -131,8 +132,8 @@ ggplot(parents) +
   facet_grid(~ couple_type) +
   labs(y = "Average daily minutes, or percentage of sample",
        x = "Stereotypical family role" ,
-       title = "Average time in childcare by gender and family role" ,
-       subtitle = "Among parents of children under age 18 in one of the following family types" ,
+       title = "Average time in primary childcare by gender and family role" ,
+       subtitle = "Among parents of children under age 18 in one of the following roles" ,
        fill = "Childcare time", 
        shape = "% of mothers or fathers") +
   theme_minimal() +
@@ -140,14 +141,33 @@ ggplot(parents) +
         axis.ticks.x=element_blank())
 ```
 
-## Graph 3
+Here's an alternative (and I think better) version of the second plot that stacks the two plots instead of superimposing them:
 
-How much time do people of different ages and cohorts spend with friends and romantic partners? ()
+```{r alternative-graph-2}
+p1 <- ggplot(parents) +
+  geom_col(mapping = aes(x = gender, y = childcare, fill = factor(gender))) +
+  scale_fill_brewer(palette="Set2") +
+  facet_grid(~ couple_type) +
+  labs(title = "Average time in primary childcare by gender and family role" ,
+       subtitle = "Among parents of children under age 18 in one of the following roles", 
+       fill = "Daily childcare minutes") +
+  theme_minimal() +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank())
 
+p2 <- ggplot(parents) +
+  geom_point(mapping = aes(x = gender, y = frac, shape = factor(gender))) +
+  facet_grid(~ couple_type) +
+  labs(shape = "% of mothers or fathers") +
+  theme_minimal() +
+  expand_limits(y = 0) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
 
-## Graph 4
+plot_grid(p1, p2, align = "v", ncol = 1, rel_heights = c(3, 1))
 
-Average time spent in different activities by age (distribution/violin plot)
-
-
-
+```
