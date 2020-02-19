@@ -11,6 +11,8 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(cowplot)
+library(ggridges)
+library(sjlabelled)
 ```
 
 ## About the Data
@@ -117,7 +119,6 @@ parents <- parents %>%
   filter(!couple_type == "No workers") %>%
   filter(!couple_type == "Unknown") %>%
   ungroup() %>%
-  group_by(female) %>%
   mutate(frac=100*round(sum_weights/sum(sum_weights),3)) %>%
   mutate(gender = ifelse(female == 0, "Fathers", "Mothers")) 
 ```
@@ -133,9 +134,9 @@ ggplot(parents) +
   labs(y = "Average daily minutes, or percentage of sample",
        x = "Stereotypical family role" ,
        title = "Average time in primary childcare by gender and family role" ,
-       subtitle = "Among parents of children under age 18 in one of the following roles" ,
+       subtitle = "Among resident parents of children under age 18 in one of the following roles" ,
        fill = "Childcare time", 
-       shape = "% of mothers or fathers") +
+       shape = "% of parents") +
   theme_minimal() +
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
@@ -145,7 +146,7 @@ Here's an alternative (and I think better) version of the second plot that stack
 
 ```{r alternative-graph-2}
 p1 <- ggplot(parents) +
-  geom_col(mapping = aes(x = gender, y = childcare, fill = factor(gender))) +
+  geom_col(mapping = aes(x = gender, y = childcare, fill = gender)) +
   scale_fill_brewer(palette="Set2") +
   facet_grid(~ couple_type) +
   labs(title = "Average time in primary childcare by gender and family role" ,
@@ -158,11 +159,11 @@ p1 <- ggplot(parents) +
         axis.title.x = element_blank())
 
 p2 <- ggplot(parents) +
-  geom_point(mapping = aes(x = gender, y = frac, shape = factor(gender))) +
+  geom_point(mapping = aes(x = gender, y = frac, shape = gender)) +
   facet_grid(~ couple_type) +
-  labs(shape = "% of mothers or fathers") +
+  labs(shape = "% of parents") +
   theme_minimal() +
-  expand_limits(y = 0) +
+  expand_limits(y = c(0, 30)) +
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         axis.title.x = element_blank(),
@@ -170,4 +171,36 @@ p2 <- ggplot(parents) +
 
 plot_grid(p1, p2, align = "v", ncol = 1, rel_heights = c(3, 1))
 
+```
+
+A few points of interest: mothers spend more time taking care of children than fathers in the same role (e.g. dual-earner mothers spend almost twice as many minutes per day on childcare than dual-earner fathers, though this includes dual-earner couples in which one spouse works full-time and the other works part-time). "Breadwinner" mothers spend less time in childcare than other mothers, but they still spend more time in childcare than any category of fathers except for "homemaker" fathers. Homemaker fathers and breadwinner mothers are fairly small groups, each comprising less than 5% of parents in the sample. Dual-earner mothers and fathers are the most common types of parents. Note that there are slightly more dual-earner mothers than there are dual-earner fathers; this is possible because of the presence of same-sex couples in the dataset.
+
+## Graph 3
+
+I now look at the distribution of leisure time by educational group. Leisure time is distributed across person days, not people; therefore, variation is day-to-day as well as person-to-person.
+
+```{r education}
+education <- atus %>%
+  filter(AGE %in% 25:54) %>%
+  select(BLS_LEIS, EDUC, WT06) %>%
+  mutate(BLS_LEIS = BLS_LEIS*7/60) %>%
+  mutate(educ_r = ifelse(EDUC %in% 10:17, "Less than HS",
+                         ifelse(EDUC %in% 20:21, "HS",
+                          ifelse(EDUC %in% 30:32, "Some college",
+                           ifelse(EDUC == 40, "BA",
+                            "Graduate degree")))))
+  
+```
+
+
+
+```{r graph-03}
+ggplot(data = education, aes(x = BLS_LEIS, y = educ_r, fill = educ_r)) +
+  geom_density_ridges() +
+  theme_minimal() + 
+  theme(legend.position = "none") +
+  labs(title = "Distribution of leisure time by educational attainment" ,
+       subtitle = "Weekly leisure hours among individuals ages 25-54", 
+       x = "Weekly hours") +
+  theme(axis.title.y = element_blank())
 ```
